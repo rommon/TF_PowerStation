@@ -1,5 +1,19 @@
-# -*- coding: utf-8 -*-
-# python 3 source code
+#!/usr/bin/python3
+""" 
+Implementation of a Current and Voltage measurement System for Tinkerforge
+
+Features:
+ * shows time, current, voltage and power on the lcd
+ * stores those values as a csv file
+
+* python 3 source code
+
+
+' Some lines are copied from the tinkerforge example code '
+"""
+
+
+__author__      = "Rom"
 
 import socket
 import sys
@@ -17,15 +31,15 @@ from tinkerforge.brick_master import Master
 from tinkerforge.bricklet_lcd_20x4 import LCD20x4
 from tinkerforge.bricklet_voltage_current import VoltageCurrent
 
-
+global x
 
 class PowerStation:
     HOST = "localhost"
     PORT = 4223
 
     # power measurement settings
-    # interval in milli seconds
-    INTERVAL = 2000
+    # interval in seconds (because time.sleep is used)
+    INTERVAL = 1
 
     ipcon = None
     lcd = None
@@ -85,8 +99,8 @@ class PowerStation:
                 try:
                     self.iuw = VoltageCurrent(uid, self.ipcon)
                     # TODO
-                    self.iuw.set_current_callback_period(self.INTERVAL)
-                    self.iuw.register_callback(self.iuw.CALLBACK_CURRENT, self.cb_current)
+                    #self.iuw.set_current_callback_period(self.INTERVAL)
+                    #self.iuw.register_callback(self.iuw.CALLBACK_CURRENT, self.cb_current)
                     #set_voltage_callback_period(self.INTERVAL)
                     #set_power_callback_period(self.INTERVAL)
                     log.info('I-U-W Bricklet initalized')
@@ -106,11 +120,14 @@ class PowerStation:
                     time.sleep(1)
 
     def cb_current(self, current):
+        # TODO
         self.read_all_power_values()
 
     def cb_voltage(self, voltage):
+        # TODO
         pass
     def cv_power(self, power):
+        # TODO
         pass
 
     def read_all_power_values(self):
@@ -131,17 +148,23 @@ class PowerStation:
         with open (self.filename, 'a') as f:
             f.write('%s;%s;%s;%s\n' % (str(ts), str(current), str(voltage), str(power)))
 
+
 def main():
     log.info("Power Station is starting...")
 
     power_station = PowerStation()
-    
-    #input('Press key to exit\n')
 
-    #if power_station.ipcon != None:
-    #    power_station.ipcon.disconnect()
+    time.sleep(0.5)
+    while True:
+        power_station.read_all_power_values()
+        time.sleep(power_station.INTERVAL)
+
+ 
+    if power_station.ipcon != None:
+        power_station.ipcon.disconnect()
 
     log.info('Power Station: End')
+
 
 if __name__ == "__main__":
     main()
