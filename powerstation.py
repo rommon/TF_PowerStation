@@ -90,6 +90,7 @@ class PowerStation:
                     self.lcd = LCD20x4(uid, self.ipcon)
                     self.lcd.clear_display()
                     self.lcd.backlight_on()
+                    self.lcd.register_callback(self.lcd.CALLBACK_BUTTON_RELEASED, self.cb_button_released)
                     log.info('LCD 20x4 initialized')
                 except Error as e:
                     log.error('LCD 20x4 init failed: ' + str(e.description))
@@ -118,6 +119,12 @@ class PowerStation:
                 except Error as e:
                     log.error('Enumerate Error: ' + str(e.description))
                     time.sleep(1)
+    def cb_button_released(self, button):
+        # it doesn't matter which button was pressed, just toggle lcd backlight
+        if self.lcd.is_backlight_on():
+            self.lcd.backlight_off()
+        else:
+            self.lcd.backlight_on()
 
     def cb_current(self, current):
         # TODO
